@@ -1,0 +1,12 @@
+branch-defaults:
+  master:
+    environment: null
+global:
+  application_name: basketball_challenge
+  branch: null
+  default_ec2_keyname: null
+  default_platform: Python 3.4
+  default_region: us-east-2
+  profile: eb-cli
+  repository: null
+  sc: git
