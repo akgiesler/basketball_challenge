@@ -1,6 +1,7 @@
 branch-defaults:
   master:
-    environment: null
+    environment: basketball-challenge
+    group_suffix: null
 global:
   application_name: basketball_challenge
   branch: null
