@@ -14,7 +14,6 @@ def get_data(url):
 		print('error retrieving data from url')
 		return 0
 
-	#print(teams_xml)
 
 	try:
 		tempData = xmltodict.parse(tempData)
@@ -24,7 +23,7 @@ def get_data(url):
 
 	return tempData
 
-@application.route('/')
+@application.route('/chart')
 def main():	
 
 # 	 Win score formula: Win Score Formula=[(Points)+(Rebounds)+(Steals)+(½Assists)+(½Blocked Shots)-
@@ -70,7 +69,13 @@ def main():
 
 		avg = total / count
 
-		dataOut[key] = {"name":top[0],"team":top[1],"win_score":top[2],"avg":avg}
+		dif = round(top[2],2) - round(avg,2)
+
+		print(dif)
+
+		dataOut[key] = {"name":top[0],"team":top[1],"win_score":top[2],"avg":avg,"dif":round(dif,2)}
+
+
 
 
 
@@ -81,7 +86,7 @@ def main():
 							<th class="tg-yw4l">Top Player by Win Score</th>
 							<th class"tg-yw41">Top Player's Team</th>
 							<th class="tg-yw4l">Win Score</th>
-						    <th class="tg-yw4l">Average Win Score for Position</th>
+						    <th class="tg-yw4l">Avg Win Score for POS</th>
 						    <th class="tg-yw4l">Differential</th>
 					 	</tr>"""
 
@@ -91,7 +96,7 @@ def main():
 			tableBuilder += '<td class="tg-yw4l">'+dataOut[key]["team"]+'</td>'
 			tableBuilder += '<td class="tg-yw4l">'+str(format(dataOut[key]["win_score"],'.2f'))+'</td>'
 			tableBuilder += '<td class="tg-yw4l">'+str(format(dataOut[key]["avg"],'.2f'))+'</td>'
-			tableBuilder += '<td class="tg-yw41"><font color="green">+'+str(format(dataOut[key]["win_score"] - dataOut[key]["avg"],'.2f'))+'</font></td>'
+			tableBuilder += '<td class="tg-yw41"><font color="green">+'+str(dataOut[key]["dif"])+'</font></td>'
 			tableBuilder += '</tr>'
 
 		tableBuilder +='</table>'
@@ -115,7 +120,7 @@ def main():
 			.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
 			.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:bold;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
 			.tg .tg-yw4l{vertical-align:top}
-			</style>""" + tableBuilder +"""<br><br><br><br><a href="/graph">View Visualization</a></body></html>""")
+			</style>""" + tableBuilder +"""</body></html>""")
  
 @application.route('/graph')
 def graph():
@@ -331,6 +336,42 @@ text.append("text")
 			<body>
 </body>
 </html>""")
+
+@application.route('/')
+def home():
+	return("""<html><head><title>Top Projected NBA Players by Win Score</title>
+					<style>
+					.box1{
+					    float:left;
+					    margin-right:20px
+					    height:100%;
+					    width:55%;
+					}
+										.box2{
+					    float:left;
+					    margin-right:20px
+					    height:100%;
+					    width:45%;
+					}
+					.clear{
+					    clear:both;
+					}
+					.myframe{
+						width:100%;
+						height:100%;
+					}
+				</style>
+				</head>
+				<body>
+<div class="box1"><iframe class="myframe" src="/graph" frameborder="0" scrolling="yes" width="800" height="720" align="left"> </iframe> </div>
+
+<div class="box2">    <iframe src="/chart" class="myframe" frameborder="0" scrolling="no" width="100%" height="512" align="right">
+    </iframe>
+</div>
+<div class="clear"></div>
+				</body>
+				</html>""")
+
 
 
 if __name__ == '__main__':
