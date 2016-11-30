@@ -115,7 +115,7 @@ def main():
 			.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
 			.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:bold;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;}
 			.tg .tg-yw4l{vertical-align:top}
-			</style>""" + tableBuilder +"""</body></html>""")
+			</style>""" + tableBuilder +"""<br><br><br><br><a href="/graph">View Visualization</a></body></html>""")
  
 @application.route('/graph')
 def graph():
@@ -234,17 +234,17 @@ var text = svg.selectAll("text")
 
 //Add SVG Text Element Attributes
 text.append("text")
-                .attr("x", function(d) { return d.x + 30; })
+                .attr("x", function(d) { return d.x + 20 + (0.5*d.r); })
                 .attr("y", function(d) { return d.y - 20; })
                 .text(function(d) { return d.name});
                 
 text.append("text")
-                .attr("x", function(d) { return d.x + 30; })
+                .attr("x", function(d) { return d.x + 20 + (0.5*d.r); })
                 .attr("y", function(d) { return d.y; })
                 .text(function(d) { return d.team});
                 
 text.append("text")
-                .attr("x", function(d) { return d.x + 30; })
+                .attr("x", function(d) { return d.x + 20 + (0.5*d.r); })
                 .attr("y", function(d) { return d.y+20; })
                 .text(function(d) { return 'win score: '+d.r});
 
