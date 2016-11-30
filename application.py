@@ -175,7 +175,7 @@ def graph():
 		else:
 			print('error parsing position')
 
-		dataOut += '{"x":'+str(x)+',"y":'+str(y)+',"r":'+str(format(top[2],'.2f'))+',"name":"'+str(top[0])+'","pos":"'+key+'","team": "'+top[1]+'"},'
+		dataOut += '{"x":'+str(x)+',"y":'+str(y)+',"r":'+str(format(top[2],'.2f'))+',"name":"'+str(top[0])+'","pos":"'+key+'","team": "'+top[1]+'","avg" :'+str(format(avg,'.2f'))+'},'
 
 	dataOut = dataOut[:-1]
 	dataOut += ']'
@@ -193,39 +193,96 @@ def graph():
 	return("""<html>
 			<head>
 			<title> Top NBA Players by Win Score by Position </title>
-			</head>
-			<body>
-			<style type="text/css">
-			svg{
-  			 background-image: url("/static/court3.jpg");
+
+			<script src="http://d3js.org/d3.v3.min.js"></script>
+			<script src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
+
+						  <style type="text/css">
+			    svg{
+			   background-image: url("http://basketball-challenge.hwfbdpicuf.us-east-2.elasticbeanstalk.com/static/court3.jpg");
 			   }
-
-			circle{
-			  fill: orange;
+			div.tooltip {	
+			    position: absolute;			
+			    text-align: left;			
+			    width: 115px;					
+			    height: 45px;					
+			    padding: 2px;				
+			    font: 12px sans-serif;		
+			    background: white;	
+			    border: 10px;		
+			    border-radius: 8px;
+			    border-width: 10px;
+			    pointer-events: none;
 			}
+			  </style>
 
-			text{;
-			  font-size: 20px;
-			}
-			</style></body>
-
-<script src="//d3js.org/d3.v3.min.js"></script>
-<script>var svg = d3.select("body").append("svg")
+<script type='text/javascript'>//<![CDATA[
+window.onload=function(){
+var svg = d3.select("body").append("svg")
     .attr("width", '800px')
     .attr("height", '720px')
     .attr("stroke",'black');
-  
+      
 var data = """+dataOut+""";
 
 var circles = svg.selectAll("circle")
                           .data(data)
-                          .enter()
-                          .append("circle");
+                          .enter();
 
-var circleAttributes = circles
+// Define the div for the tooltip
+var div = d3.select("body").append("div")	
+    .attr("class", "tooltip")				
+    .style("opacity", 0);
+
+circles.append("circle")
+.attr("fill","orange")
                        .attr("cx", function (d) { return d.x; })
                        .attr("cy", function (d) { return d.y; })
-                       .attr("r", function (d) { return d.r*1.75; });
+                       .attr("r", function (d) { return d.r*2.75; })
+                                              .on("mouseover", function(d) {		
+            div.transition()		
+                .duration(200)		
+                .style("opacity", .9);		
+            div	.html("Top Win Score: "+ d.r+"<br>Avg WS for "+d.pos+": "+d.avg+"<br>Differential : +"+parseFloat(d.r-d.avg).toFixed(2))
+                .style("left", (d3.event.pageX) + "px")		
+                .style("top", (d3.event.pageY - 28) + "px");	
+            })					
+        .on("mouseout", function(d) {		
+            div.transition()		
+                .duration(500)		
+                .style("opacity", 0);	
+        });
+                       
+circles.append("circle")
+.attr("fill","darkolivegreen")
+                       .attr("cx", function (d) { return d.x; })
+                       .attr("cy", function (d) { return d.y; })
+                       .attr("r", function (d) { return d.avg*2.75; })
+                       .on("mouseover", function(d) {		
+            div.transition()		
+                .duration(200)		
+                .style("opacity", .9);		
+            div	.html("Top Win Score: "+ d.r+"<br>Avg WS for "+d.pos+": "+d.avg+"<br>Differential : +"+parseFloat(d.r-d.avg).toFixed(2))
+                .style("left", (d3.event.pageX) + "px")		
+                .style("top", (d3.event.pageY - 28) + "px");	
+            })					
+        .on("mouseout", function(d) {		
+            div.transition()		
+                .duration(500)		
+                .style("opacity", 0);	
+        });
+
+circles.append("circle")
+.attr("fill","orange")
+                       .attr("cx", 650)
+                       .attr("cy", 40)
+                       .attr("r", 20);
+
+circles.append("circle")
+.attr("fill","darkolivegreen")
+                       .attr("cx", 650)
+                       .attr("cy", 100)
+                       .attr("r", 20);
 
 //Add the SVG Text Element to the svgContainer
 var text = svg.selectAll("text")
@@ -234,27 +291,46 @@ var text = svg.selectAll("text")
 
 //Add SVG Text Element Attributes
 text.append("text")
-                .attr("x", function(d) { return d.x + 20 + (0.5*d.r); })
-                .attr("y", function(d) { return d.y - 20; })
+                .attr("x", function(d) { return d.x + 20 + (2*d.r); })
+                .attr("y", function(d) { return d.y-5; })
                 .text(function(d) { return d.name});
                 
 text.append("text")
-                .attr("x", function(d) { return d.x + 20 + (0.5*d.r); })
-                .attr("y", function(d) { return d.y; })
+                .attr("x", function(d) { return d.x + 20 + (2*d.r); })
+                .attr("y", function(d) { return d.y+15; })
                 .text(function(d) { return d.team});
-                
+                              
 text.append("text")
-                .attr("x", function(d) { return d.x + 20 + (0.5*d.r); })
-                .attr("y", function(d) { return d.y+20; })
-                .text(function(d) { return 'win score: '+d.r});
-
-text.append("text")
-                .attr("x", function(d) { return d.x-15; })
-                .attr("y", function(d) { return d.y+2; })
+                .attr("x", function(d) { return d.x-(2*d.pos.length)-10; })
+                .attr("y", function(d) { return d.y+5; })
                 .text(function(d) { return '('+d.pos+')'});
 
+text.append("text")
+                .attr("x", 675)
+                .attr("y", 40)
+                .attr("font-size", "12px")
+                .text('Top Win Score by POS');
 
-                    </script></html>""")
+text.append("text")
+                .attr("x", 675)
+                .attr("y", 100)
+                .attr("font-size", "12px")
+                .text('Avg Win Score by POS');
+                
+text.append("text")
+                .attr("x", 40)
+                .attr("y", 40)
+                .attr("font-size", "24px")
+                .text('Top Projected NBA Players by Win Score');
+}//]]> 
+
+</script>
+
+
+			</head>
+			<body>
+</body>
+</html>""")
 
 
 if __name__ == '__main__':
