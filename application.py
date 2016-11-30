@@ -14,7 +14,7 @@ def get_data(url):
 		print('error retrieving data from url')
 		return 0
 
-
+#parse the xml data into a dictionary for ease of use
 	try:
 		tempData = xmltodict.parse(tempData)
 	except:
@@ -24,7 +24,7 @@ def get_data(url):
 	return tempData
 
 @application.route('/chart')
-def main():	
+def chart():	
 
 # 	 Win score formula: Win Score Formula=[(Points)+(Rebounds)+(Steals)+(½Assists)+(½Blocked Shots)-
 #  (Field Goal Attempts)-(Turnovers)-½(Free Throw Attempts)]/Games
@@ -33,8 +33,6 @@ def main():
 # Free Throw Attempts = (((PTS - 3*THREES)*0.1)/FT
 
 	players = {}
-
-	#teams = get_data('https://www.fantasybasketballnerd.com/service/teams')
 
 #Make the initial HTTP request to get the xml data
 	stats = get_data('https://www.fantasybasketballnerd.com/service/draft-projections')
@@ -57,6 +55,7 @@ def main():
 
 	dataOut = {}
 
+#Iterate through all players to allow us to capture the average for each position and build our result set
 	for key in players.keys():
 		count = 0
 		total = 0
@@ -71,13 +70,8 @@ def main():
 
 		dif = round(top[2],2) - round(avg,2)
 
-		print(dif)
-
+#Add top player by position to dictionary
 		dataOut[key] = {"name":top[0],"team":top[1],"win_score":top[2],"avg":avg,"dif":round(dif,2)}
-
-
-
-
 
 		#initialize the table and build the header row
 		tableBuilder = """<table class="tg">
@@ -89,7 +83,7 @@ def main():
 						    <th class="tg-yw4l">Avg Win Score for POS</th>
 						    <th class="tg-yw4l">Differential</th>
 					 	</tr>"""
-
+#iterate through our results to build an html table
 		for key in dataOut.keys():
 			tableBuilder += '<tr><td class="tg-yw4l">'+key+'</td>'
 			tableBuilder += '<td class="tg-yw4l">'+dataOut[key]["name"]+'</td>'
@@ -101,14 +95,6 @@ def main():
 
 		tableBuilder +='</table>'
 
-
-		#print('{"Position": "'+key+'", "'+str(top[0]) +' - '+ str(top[1])+'" : "'+str(top[2])+'" ,"Average": "'+str(avg) +'"}')
-
-	# for key, value in players.items():
-	# 	print(key)
-	# 	print(value)
-		#for postition in values:
-			#print(sorted(players['SF'], key=itemgetter(2), reverse=True))
 
 	return("""<html>
 			<head>
@@ -131,8 +117,6 @@ def graph():
 # Free Throw Attempts = (((PTS - 3*THREES)*0.1)/FT
 
 	players = {}
-
-	#teams = get_data('https://www.fantasybasketballnerd.com/service/teams')
 
 #Make the initial HTTP request to get the xml data
 	stats = get_data('https://www.fantasybasketballnerd.com/service/draft-projections')
@@ -167,6 +151,7 @@ def graph():
 
 		avg = total / count
 
+#hardcoded values for the court coordinates for each position
 		if key == 'PF':
 			x,y = 245,565
 		elif key == 'C':
@@ -180,19 +165,12 @@ def graph():
 		else:
 			print('error parsing position')
 
+#start building our string for data out, to be streamed into javascript
 		dataOut += '{"x":'+str(x)+',"y":'+str(y)+',"r":'+str(format(top[2],'.2f'))+',"name":"'+str(top[0])+'","pos":"'+key+'","team": "'+top[1]+'","avg" :'+str(format(avg,'.2f'))+'},'
 
+#remove last comma and add closing bracket
 	dataOut = dataOut[:-1]
 	dataOut += ']'
-
-	print (dataOut)
-	
-
-#	var data = [{x: 245, y: 565, r:20, name:"Kevin Love", pos:"PF", team:"DAL"},
-#						{x: 540, y: 510, r:20, name:"DeAndre Jordan", pos:"C", team:"DAL"},
-#           {x: 400, y: 250 , r:20, name:"Kevin Rose",pos:"PG", team:"DAL"},
-#						{x: 620, y: 610, r:20, name:"Kevin Durant", pos:"SF", team:"DAL"},
-#						{x: 120, y: 320, r:20, name:"Kevin Hardaway", pos:"SG", team:"DAL"}];
 
 
 	return("""<html>
